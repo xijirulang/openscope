@@ -4,6 +4,7 @@ import _has from 'lodash/has';
 import EventBus from '../lib/EventBus';
 import EventTracker from '../EventTracker';
 import GameOptions from './GameOptions';
+import GameLogRecorder from '../gamelog/GameLogRecorder';
 import TimeKeeper from '../engine/TimeKeeper';
 import { round } from '../math/core';
 import { EVENT } from '../constants/eventNames';
@@ -122,9 +123,13 @@ class GameController {
      * @method init_pre
      */
     init_pre() {
-        return this.setupHandlers()
+        const gameController = this.setupHandlers()
             .createChildren()
             .enable();
+
+        GameLogRecorder.recordGameStart(this.game.score);
+
+        return gameController;
     }
 
     /**
@@ -239,11 +244,15 @@ class GameController {
             throw new TypeError(`Expected a game event listed in GAME_EVENTS, but instead received ${gameEvent}`);
         }
 
+        const scoreDelta = GAME_EVENTS_POINT_VALUES[gameEvent];
+
         this.game.events[gameEvent] += 1;
-        this.game.score += GAME_EVENTS_POINT_VALUES[gameEvent];
+        this.game.score += scoreDelta;
 
         this.game_updateScore();
         this.updateScoreHistory(gameEvent);
+
+        GameLogRecorder.recordScoreChange(gameEvent, scoreDelta, this.game.score);
     }
 
 
@@ -339,6 +348,8 @@ class GameController {
         $pauseToggleElement.addClass(SELECTORS.CLASSNAMES.ACTIVE);
         $pauseToggleElement.attr('title', 'Resume simulation');
         $('html').addClass(SELECTORS.CLASSNAMES.PAUSED);
+
+        GameLogRecorder.recordGamePause(this.game.score);
     }
 
     /**
@@ -353,6 +364,8 @@ class GameController {
         $pauseToggleElement.removeClass(SELECTORS.CLASSNAMES.ACTIVE);
         $pauseToggleElement.attr('title', 'Pause simulation');
         $('html').removeClass(SELECTORS.CLASSNAMES.PAUSED);
+
+        GameLogRecorder.recordGameResume(this.game.score);
     }
 
     /**

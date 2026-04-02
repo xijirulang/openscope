@@ -4,6 +4,7 @@ import AirportController from '../airport/AirportController';
 import EventBus from '../lib/EventBus';
 import EventTracker from '../EventTracker';
 import GameController from '../game/GameController';
+import GameLogRecorder from '../gamelog/GameLogRecorder';
 import SettingsController from './SettingsController';
 import TrafficRateController from './TrafficRateController';
 import VideoMapController from './VideoMapController';
@@ -335,6 +336,16 @@ class UiController {
          * @default null
          */
         this.$tutorialDialog = null;
+
+        /**
+         * Footer button element used to export game logs
+         *
+         * @for UiController
+         * @property $exportGameLog
+         * @type {Jquery|Element}
+         * @default null
+         */
+        this.$exportGameLog = null;
     }
 
     /**
@@ -379,6 +390,7 @@ class UiController {
         this.$toggleTutorial = this.$element.find(SELECTORS.DOM_SELECTORS.TOGGLE_TUTORIAL);
         this.$toggleVideoMap = this.$element.find(SELECTORS.DOM_SELECTORS.TOGGLE_VIDEO_MAP);
         this.$tutorialDialog = this.$element.find(SELECTORS.DOM_SELECTORS.TUTORIAL);
+        this.$exportGameLog = this.$element.find(SELECTORS.DOM_SELECTORS.EXPORT_GAME_LOG);
         this.chatLogDuration = GameController.game.option.getOptionByName('chatLogDuration');
 
         return this.setupHandlers()
@@ -393,6 +405,7 @@ class UiController {
     setupHandlers() {
         this.onAirportChangeHandler = this.onAirportChange.bind(this);
         this.onChatLogDurationChangeHandler = this.onChatLogDurationChange.bind(this);
+        this.onExportGameLogHandler = this.onExportGameLog.bind(this);
 
         return this;
     }
@@ -430,6 +443,7 @@ class UiController {
         this.$toggleTraffic.on('click', (event) => this.onToggleTraffic(event));
         this.$toggleTutorial.on('click', (event) => this.onToggleTutorial(event));
         this.$toggleVideoMap.on('click', (event) => this.onToggleVideoMap(event));
+        this.$exportGameLog.on('click', this.onExportGameLogHandler);
 
         return this;
     }
@@ -463,6 +477,7 @@ class UiController {
         this.$toggleTraffic.off('click', (event) => this.onToggleTraffic(event));
         this.$toggleTutorial.off('click', (event) => this.onToggleTutorial(event));
         this.$toggleVideoMap.off('click', (event) => this.onToggleVideoMap(event));
+        this.$exportGameLog.off('click', this.onExportGameLogHandler);
 
         return this();
     }
@@ -508,6 +523,7 @@ class UiController {
         this.$toggleTutorial = null;
         this.$toggleVideoMap = null;
         this.$tutorialDialog = null;
+        this.$exportGameLog = null;
 
         return this;
     }
@@ -988,6 +1004,26 @@ class UiController {
             `${this.$toggleVideoMap.hasClass(SELECTORS.CLASSNAMES.ACTIVE)}`
         );
         this.videoMapController.toggleDialog();
+    }
+
+    /**
+     * Export game logs captured by `GameLogRecorder`
+     *
+     * @for UiController
+     * @method onExportGameLog
+     * @param event {jquery event}
+     */
+    onExportGameLog(event) {
+        event.preventDefault();
+
+        const exportResult = GameLogRecorder.exportLogs('txt');
+
+        if (!exportResult.ok) {
+            this.ui_log(exportResult.message, true);
+            return;
+        }
+
+        this.ui_log(exportResult.message);
     }
 
     /**

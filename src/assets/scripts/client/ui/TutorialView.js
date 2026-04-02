@@ -252,7 +252,7 @@ export default class TutorialView {
             }
         };
 
-        zlsa.atc.loadAsset({ url: 'assets/tutorial/tutorial.json', immediate: true })
+        zlsa.atc.loadAsset({ url: 'assets/tutorial/tutorial_cn.json', immediate: true })
             .done((response) => {
                 response.forEach((step) => {
                     this._loadTutorialStep(step);

@@ -1,0 +1,254 @@
+[
+  {
+    "title": "欢迎！",
+    "text": "欢迎使用 openScope 空中交通管制模拟器教程。随时点击右下角的“？”图标展开/收起本教程。",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "移动视角",
+    "text": "按住鼠标右键拖动可移动雷达屏幕中心。滚动鼠标滚轮缩放，按下鼠标中键/滚轮可重置缩放比例。对空域内的飞机，只需左键点击即可选中。",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "飞行进程单栏",
+    "text": "屏幕右侧有一排进程单，每架飞机对应一条。你可能需要通过“|<”标签将其拉出。每条进程单左侧都有一个色条，起飞航班为蓝色，进场航班为红色。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "阅读飞行进程单",
+    "text": "点击最下方的离场航班进程单（{CALLSIGN}）。飞机呼号会显示在指令输入框中，进程单也会突出显示（表示已选中该飞机）。左侧列显示呼号、机型（本例为“{MODEL}”，即“{MODELNAME}”）和 CID。下一列显示分配的应答机编码、当前分配高度和计划巡航高度。最后两列分别为起飞机场/目的地机场及飞行计划航路。",
+    "replace": [
+      {
+        "findWhat": "{CALLSIGN}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "callsign"
+        }
+      },
+      {
+        "findWhat": "{MODEL}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "model.icao"
+        }
+      },
+      {
+        "findWhat": "{MODELNAME}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "model.name"
+        }
+      }
+    ],
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "离场航班",
+    "text": "我们来看离场航班。当前选中的飞机（{CALLSIGN}）已获得航路、滑行、起飞及初始爬升许可。你可以在“设置”→“塔台管制”中改为“用户控制”来手动管理这些许可（该选项可能在后续版本中移除）。注意：若启用用户控制塔台，离场飞机需你放行才会起飞，否则会积压。关于航路及滑行许可，请参考<a title=\"openScope 指令参考\" href=\"https://github.com/openscope/openscope/blob/develop/documentation/commands.md\" target=\"_blank\">完整指令列表</a>。",
+    "replace": [
+      {
+        "findWhat": "{CALLSIGN}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "callsign"
+        }
+      }
+    ],
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "控制飞机移动",
+    "text": "{CALLSIGN} 起飞后会自动爬升至 {INIT_ALT}，这是塔台下达的初始爬升许可。飞机从地面直接爬升到巡航高度、不在平飞段停留，燃油效率更高，因此我们让它继续爬升！点击该飞机并输入“cvs”（沿标准离场程序爬升），它就会按照 {SID_NAME} 离场程序中规定的高度和速度飞行。你也可以直接下达爬升指令，取消 SID 限制（例如“climb 150”表示爬升至 15000 英尺）。",
+    "replace": [
+      {
+        "findWhat": "{CALLSIGN}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "callsign"
+        }
+      },
+      {
+        "findWhat": "{INIT_ALT}",
+        "replaceWith": {
+          "object": "airport",
+          "propPath": "initial_alt"
+        }
+      },
+      {
+        "findWhat": "{SID_NAME}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "destination"
+        }
+      }
+    ],
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "模拟速度",
+    "text": "随时可以点击加速按钮（输入框右侧的两个小箭头）加快模拟速度。观察离场飞机以 2 倍速沿 SID 爬升。再次点击切换到 5 倍速，第三次点击恢复 1 倍速。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "预计航迹线",
+    "text": "缩小视野并点击 {CALLSIGN}，可以看到一条蓝色实线，显示其飞行计划航路。蓝色线条代表 SID 程序、初始航路点和航线。为便于管制，最好尽快引导它们飞出你的空域。你可以使用“pd”指令（后续教程会讲到）让其直飞某点，更快离开空域。",
+    "replace": [
+      {
+        "findWhat": "{CALLSIGN}",
+        "replaceWith": {
+          "object": "departureAircraft",
+          "propPath": "callsign"
+        }
+      }
+    ],
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "基础管制指令：高度",
+    "text": "可以使用“climb”指令或其同义指令分配高度。“climb”与“descend”“d”“clear”“c”“altitude”“a”效果完全相同，根据场景选择即可。与真实空管一样，高度单位永远为百英尺，例如“descend 30”表示下降到 3000 英尺，“climb 100”表示爬升至 10000 英尺。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "基础管制指令：雷达引导航向",
+    "text": "雷达航向引导是管制员指挥飞机飞向指定磁航向的方式。有三种下达方式：通常使用“t l ###”或“t r ###”指定三位航向。注意方向错误非常危险。若只需小幅左转或右转，可输入“fh ###”（fly heading），飞机将以最短转向角对准航向。也可以只输入 1~2 位数字，指挥飞机左转或右转对应度数。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "基础管制指令：速度",
+    "text": "合理使用速度控制有助于维持管制节奏，在保证安全的前提下将飞机间距压缩至最低标准。下达速度指令可使用小键盘“+/-”或“sp”后接速度（节）。注意：指令速度为表速，雷达显示的是地速，因此数值可能不同。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "直飞",
+    "text": "直飞指令（“pd”）用于指挥飞机直接飞往其飞行计划中已有的某个航路点。例如飞机计划航路为 [A,B,C,D,…]，输入“pd B”会跳过 A 直接飞往 B，之后继续按 C、D 及后续航路飞行。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "航班离境",
+    "text": "飞机飞出你的管制空域后，会切换至区域管制，并自动从你的飞行进程单栏中移除。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "进场航班",
+    "text": "接下来讲解进场航班。在雷达屏幕上点击任意进场飞机，选中后使用已学的高度、航向、速度指令，引导其切入对应跑道的 ILS 航向道。飞机必须处于合适高度并对准合适航向（后续会详细说明），才能截获 ILS 并正常落地。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "进近许可",
+    "text": "可以使用“i”指令后接跑道号，为飞机下达 ILS 进近许可。飞机将尝试截获航向道（即跑道延长中心线）。先通过雷达引导，使飞机以不大于 30 度的角度切入五边进近航道，然后输入“i {RUNWAY}”许可 ILS 进近。之后飞机会自动引导降落，无需额外操作。若不成功，可降低高度并让飞机在更远位置切入进近航道。",
+    "replace": [
+      {
+        "findWhat": "{RUNWAY}",
+        "replaceWith": {
+          "object": "airport",
+          "propPath": "arrivalRunwayModel.name"
+        },
+        "_comment": "This isn't robust. If there are multiple runways in use, or the arrival a/c has filed to land elsewhere then the tutorial message will not be correct. However, it's not a bad guess, and hopefully the player hasn't dicked with it too much."
+      }
+    ],
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "组合指令",
+    "text": "可以将多条指令合并为一条下达，例如对离场机使用“caf cvs taxi 30C”，对进场机使用“fh 250 d 30 i 26 - 180”等。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "预计航迹线（PTL）",
+    "text": "进近管制中称为 PTL，区域管制中称为航向延长线，是一条从飞机前方延伸的参考线，长度由飞机速度决定。使用 F1/F2 键增减其长度，步长可在设置中调整。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "距离/方位测量工具",
+    "text": "按住 Ctrl 键并左键点击两个点，可快速获取两点/航路点/飞机间的航向与距离。按住 Shift+Ctrl 点击会自动吸附到最近的飞机或航路点，若吸附到飞机还会显示预计到达时间。按 ESC 键清除所有测距线。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "机场指南与指令参考",
+    "text": "如需了解更多机场或指令用法，可通过“？”菜单查看机场指南，或查阅<a title=\"openScope 指令参考\" href=\"https://github.com/openscope/openscope/blob/develop/documentation/commands.md\" target=\"_blank\">openScope 指令参考</a>获取完整飞机及雷达指令列表。",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  },
+  {
+    "title": "教程结束！",
+    "text": "记住，进近管制的最低间隔标准为：横向 3 海里或垂直 1000 英尺。保持间隔、保持流量，你很快就能成为一名合格的管制员！",
+    "side": "left",
+    "position": [
+      0.1,
+      0.85
+    ]
+  }
+]

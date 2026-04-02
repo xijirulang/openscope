@@ -124,6 +124,7 @@ export const IDS = {
     GITHUB_EXTERNAL_LINK: 'js-github-external-link',
     SCORE: 'score',
     SCORE_LOG: 'score-log',
+    EXPORT_GAME_LOG: 'export-game-log',
     SIDEBAR: 'sidebar'
 };
 
