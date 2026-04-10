@@ -12,7 +12,8 @@ const EVENT_TYPE = {
 	GAME_START: 'GAME_START',
 	GAME_PAUSE: 'GAME_PAUSE',
 	GAME_RESUME: 'GAME_RESUME',
-	SCORE_CHANGE: 'SCORE_CHANGE'
+	SCORE_CHANGE: 'SCORE_CHANGE',
+	QUESTIONNAIRE_SUBMIT: 'QUESTIONNAIRE_SUBMIT'
 };
 
 class GameLogRecorder {
@@ -78,6 +79,18 @@ class GameLogRecorder {
 			scoreEvent,
 			scoreDelta,
 			currentScore
+		});
+	}
+
+	recordQuestionnaireSubmit(questionnaireScore, questionnaireTriggerGameTime) {
+		if (!this._hasStarted) {
+			return;
+		}
+
+		this._records.push({
+			...this._buildBaseRecord(EVENT_TYPE.QUESTIONNAIRE_SUBMIT),
+			questionnaireScore,
+			questionnaireTriggerGameTime
 		});
 	}
 
@@ -171,21 +184,35 @@ class GameLogRecorder {
 
 	_buildTxtContent() {
 		const lines = [
-			'openScope Game Log',
-			`Exported At (ms): ${new Date().getTime()}`,
-			`Total Records: ${this._records.length}`,
-			''
+			'# openScope Game Log',
+			`# Export Time: ${this._formatTimestampForLog(new Date().getTime())}`
 		];
+
+		const questionnaireSummaryLines = this._buildQuestionnaireSummaryLines();
+
+		if (questionnaireSummaryLines.length > 0) {
+			lines.push(...questionnaireSummaryLines);
+		}
+
+		lines.push('');
 
 		for (let i = 0; i < this._records.length; i++) {
 			const record = this._records[i];
-			const prefix = `${i + 1}. [${record.eventType}]`;
+			const isQuestionnaireRecord = record.eventType === EVENT_TYPE.QUESTIONNAIRE_SUBMIT;
 
-			lines.push(
-				`${prefix} systemTimeMs=${record.systemTimeMs}; gameTime=${record.gameTime}; ` +
-				`scoreEvent=${record.scoreEvent || ''}; scoreDelta=${record.scoreDelta ?? ''}; ` +
-				`currentScore=${record.currentScore ?? ''}`
-			);
+			lines.push(`[${this._formatTimestampForLog(record.systemTimeMs)}] [${record.eventType}]`);
+			lines.push(`  System Time (ms): ${this._formatValue(record.systemTimeMs)}`);
+			lines.push(`  Game Time (s)   : ${this._formatValue(record.gameTime)}`);
+			lines.push(`  Score Event    : ${this._formatValue(record.scoreEvent)}`);
+			lines.push(`  Score Delta    : ${this._formatValue(record.scoreDelta)}`);
+			lines.push(`  Current Score  : ${this._formatValue(record.currentScore)}`);
+
+			if (isQuestionnaireRecord) {
+				lines.push(`  Questionnaire Score      : ${this._formatValue(record.questionnaireScore)}`);
+				lines.push(`  Questionnaire Trigger (s): ${this._formatValue(record.questionnaireTriggerGameTime)}`);
+			}
+
+			lines.push('');
 		}
 
 		return lines.join('\n');
@@ -198,7 +225,9 @@ class GameLogRecorder {
 			'gameTime',
 			'scoreEvent',
 			'scoreDelta',
-			'currentScore'
+			'currentScore',
+			'questionnaireScore',
+			'questionnaireTriggerGameTime'
 		];
 
 		const rows = [headers.join(',')];
@@ -211,7 +240,9 @@ class GameLogRecorder {
 				record.gameTime,
 				record.scoreEvent || '',
 				record.scoreDelta ?? '',
-				record.currentScore ?? ''
+				record.currentScore ?? '',
+				record.questionnaireScore ?? '',
+				record.questionnaireTriggerGameTime ?? ''
 			].map((value) => this._escapeCsvValue(value));
 
 			rows.push(row.join(','));
@@ -228,6 +259,53 @@ class GameLogRecorder {
 		}
 
 		return stringValue;
+	}
+
+	_buildQuestionnaireSummaryLines() {
+		const questionnaireRecords = this._records.filter(
+			(record) => record.eventType === EVENT_TYPE.QUESTIONNAIRE_SUBMIT
+		);
+
+		if (questionnaireRecords.length === 0) {
+			return [];
+		}
+
+		const lines = ['questionnaireScore--单独输出'];
+
+		for (let i = 0; i < questionnaireRecords.length; i++) {
+			const record = questionnaireRecords[i];
+			const score = this._formatValue(record.questionnaireScore);
+
+			lines.push(`time${i + 1}---${score}`);
+		}
+
+		lines.push('');
+
+		return lines;
+	}
+
+	_formatTimestampForLog(timestampMs) {
+		const date = new Date(timestampMs);
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		const seconds = String(date.getSeconds()).padStart(2, '0');
+
+		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+	}
+
+	_formatValue(value) {
+		if (value === null || typeof value === 'undefined' || value === '') {
+			return '-';
+		}
+
+		if (typeof value === 'number' && Number.isFinite(value) && !Number.isInteger(value)) {
+			return value.toFixed(2);
+		}
+
+		return value;
 	}
 
 	_onAirportChange() {

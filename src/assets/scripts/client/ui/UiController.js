@@ -6,6 +6,7 @@ import EventTracker from '../EventTracker';
 import GameController from '../game/GameController';
 import GameLogRecorder from '../gamelog/GameLogRecorder';
 import SettingsController from './SettingsController';
+import QuestionnaireController from './QuestionnaireController';
 import TrafficRateController from './TrafficRateController';
 import VideoMapController from './VideoMapController';
 import TutorialView from './TutorialView';
@@ -49,6 +50,14 @@ class UiController {
          * @default null
          */
         this.settingsController = null;
+
+        /**
+         * @for UiController
+         * @property questionnaireController
+         * @type {QuestionnaireController}
+         * @default null
+         */
+        this.questionnaireController = null;
 
         /**
          * @for UiController
@@ -361,6 +370,7 @@ class UiController {
         this._eventBus = EventBus;
         this.tutorialView = new TutorialView($element);
         this.settingsController = new SettingsController($element);
+        this.questionnaireController = new QuestionnaireController($element);
         this.trafficRateController = new TrafficRateController($element);
         this.videoMapController = new VideoMapController($element);
 
@@ -494,6 +504,7 @@ class UiController {
         this._eventBus = null;
         this.tutorialView = null;
         this.settingsController = null;
+        this.questionnaireController = null;
         this.trafficRateController = null;
 
         this.$element = null;
@@ -606,6 +617,10 @@ class UiController {
 
         if (this.settingsController.isDialogOpen()) {
             this.onToggleOptions();
+        }
+
+        if (this.questionnaireController.isDialogOpen()) {
+            this.questionnaireController.closeDialog();
         }
 
         if (this.trafficRateController.isDialogOpen()) {
