@@ -102,3 +102,14 @@ ava.serial('airport change re-registers questionnaire interval', (t) => {
     t.true(GameController.destroyTimer.calledWithExactly(firstTimer));
     t.true(GameController.game_interval.calledTwice);
 });
+
+ava.serial('submit opens cogtest module in intro stage', (t) => {
+    controller = new QuestionnaireController($element);
+
+    intervalCallback.call(controller);
+    controller.onSubmit({ preventDefault: () => {} });
+
+    t.true(controller.isCogtestDialogOpen());
+    t.is(controller._cogtestCurrentStage, 'intro');
+    t.true(GameController.game_pause.calledTwice);
+});
