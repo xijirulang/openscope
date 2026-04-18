@@ -188,10 +188,6 @@ export default class QuestionnaireController {
         this.$cogtestDialog.find('.js-cogtestRestartButton').on('click', this._onCogtestRestartHandler);
         this.$cogtestDialog.find('.js-cogtestDoneButton').on('click', this._onCogtestDoneHandler);
 
-        if (typeof document !== 'undefined') {
-            $(document).on('keydown', this._onDocumentKeydownHandler);
-        }
-
         this.$element.append(this.$dialog);
         this.$element.append(this.$cogtestDialog);
 
@@ -200,6 +196,10 @@ export default class QuestionnaireController {
 
     enable() {
         this._eventBus.on(EVENT.AIRPORT_CHANGE, this._onAirportChangeHandler);
+        if (typeof document !== 'undefined') {
+            $(document).off('keydown', this._onDocumentKeydownHandler);
+            $(document).on('keydown', this._onDocumentKeydownHandler);
+        }
 
         return this;
     }
@@ -479,12 +479,18 @@ export default class QuestionnaireController {
     }
 
     generateATC2BackSeq(length) {
-        const shuffled = [...NBACK_CALLSIGNS].sort(() => (0.5 - Math.random()));
-        const selectedCallSigns = shuffled.slice(0, 2);
+        const shuffled = [...NBACK_CALLSIGNS];
+
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const randomIndex = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]];
+        }
+
+        const selectedCallsigns = shuffled.slice(0, 2);
         const sequence = [];
 
         for (let i = 0; i < length; i++) {
-            const callsign = selectedCallSigns[i % selectedCallSigns.length];
+            const callsign = selectedCallsigns[i % selectedCallsigns.length];
             let altitude = NBACK_ALTITUDES[Math.floor(Math.random() * NBACK_ALTITUDES.length)];
 
             if (i >= 2 && Math.random() < NBACK_MATCH_CHANCE) {
@@ -583,19 +589,23 @@ export default class QuestionnaireController {
     endNBack() {
         this._nbackPlaying = false;
 
-        const totalValid = this._nbackStats.totalValid || 1;
-        const accuracy = Number(((this._nbackStats.correct / totalValid) * 100).toFixed(1));
-        const totalRT = this._nbackStats.rts.reduce((sum, value) => sum + value, 0);
+        const { totalValid, correct, rts } = this._nbackStats;
+        let accuracy = 0;
+
+        if (totalValid > 0) {
+            accuracy = Number(((correct / totalValid) * 100).toFixed(1));
+        }
+        const totalRT = rts.reduce((sum, value) => sum + value, 0);
         let avgRT = 0;
 
-        if (this._nbackStats.rts.length > 0) {
-            avgRT = Math.round(totalRT / this._nbackStats.rts.length);
+        if (rts.length > 0) {
+            avgRT = Math.round(totalRT / rts.length);
         }
 
         this._cogtestData.nback = {
             accuracy,
-            correct: this._nbackStats.correct,
-            totalTargets: this._nbackStats.totalValid,
+            correct,
+            totalTargets: totalValid,
             avgRT
         };
 
@@ -744,15 +754,25 @@ export default class QuestionnaireController {
         const blob = new Blob([JSON.stringify(payload, null, 2)], {
             type: 'application/json;charset=utf-8'
         });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        let url = null;
 
-        link.href = url;
-        link.download = `cogtest-result-${new Date().getTime()}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        try {
+            url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cogtest-result-${new Date().getTime()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            this.$cogtestDialog.find('.js-cogtestResults').append('<p>导出失败，请检查浏览器下载权限。</p>');
+            return;
+        }
+
+        if (url) {
+            URL.revokeObjectURL(url);
+        }
     }
 
     restartExperiment() {
