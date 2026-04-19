@@ -34,6 +34,7 @@ ava.beforeEach(() => {
     sandbox.stub(GameController, 'destroyTimer');
     sandbox.stub(GameController, 'game_pause');
     sandbox.stub(GameController, 'game_unpause');
+    sandbox.spy(EventBus, 'trigger');
     sandbox.stub(EventTracker, 'recordEvent');
     sandbox.stub(GameLogRecorder, 'recordQuestionnaireSubmit');
 });
@@ -83,6 +84,7 @@ ava.serial('closing resumes simulation and submit stores score in game log', (t)
 
     t.true(GameLogRecorder.recordQuestionnaireSubmit.calledOnce);
     t.true(GameLogRecorder.recordQuestionnaireSubmit.calledWithExactly(7, 0));
+    t.true(EventBus.trigger.calledWithExactly(EVENT.COGTEST_OPEN));
     t.true(GameController.game_unpause.calledOnce);
     t.false(controller.isDialogOpen());
 

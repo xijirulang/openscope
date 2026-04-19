@@ -235,6 +235,7 @@ export default class QuestionnaireController {
         );
 
         this.closeDialog();
+        this._eventBus.trigger(EVENT.COGTEST_OPEN);
     }
 
     /**

@@ -7,6 +7,7 @@ import GameController from '../game/GameController';
 import GameLogRecorder from '../gamelog/GameLogRecorder';
 import SettingsController from './SettingsController';
 import QuestionnaireController from './QuestionnaireController';
+import CogtestController from './CogtestController';
 import TrafficRateController from './TrafficRateController';
 import VideoMapController from './VideoMapController';
 import TutorialView from './TutorialView';
@@ -58,6 +59,14 @@ class UiController {
          * @default null
          */
         this.questionnaireController = null;
+
+        /**
+         * @for UiController
+         * @property cogtestController
+         * @type {CogtestController}
+         * @default null
+         */
+        this.cogtestController = null;
 
         /**
          * @for UiController
@@ -371,6 +380,7 @@ class UiController {
         this.tutorialView = new TutorialView($element);
         this.settingsController = new SettingsController($element);
         this.questionnaireController = new QuestionnaireController($element);
+        this.cogtestController = new CogtestController($element);
         this.trafficRateController = new TrafficRateController($element);
         this.videoMapController = new VideoMapController($element);
 
@@ -505,6 +515,7 @@ class UiController {
         this.tutorialView = null;
         this.settingsController = null;
         this.questionnaireController = null;
+        this.cogtestController = null;
         this.trafficRateController = null;
 
         this.$element = null;
@@ -621,6 +632,10 @@ class UiController {
 
         if (this.questionnaireController.isDialogOpen()) {
             this.questionnaireController.closeDialog();
+        }
+
+        if (this.cogtestController.isDialogOpen()) {
+            this.cogtestController.closeDialog();
         }
 
         if (this.trafficRateController.isDialogOpen()) {
