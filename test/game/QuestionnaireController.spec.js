@@ -34,6 +34,7 @@ ava.beforeEach(() => {
     sandbox.stub(GameController, 'destroyTimer');
     sandbox.stub(GameController, 'game_pause');
     sandbox.stub(GameController, 'game_unpause');
+    sandbox.spy(EventBus, 'trigger');
     sandbox.stub(EventTracker, 'recordEvent');
     sandbox.stub(GameLogRecorder, 'recordQuestionnaireSubmit');
 });
@@ -83,6 +84,7 @@ ava.serial('closing resumes simulation and submit stores score in game log', (t)
 
     t.true(GameLogRecorder.recordQuestionnaireSubmit.calledOnce);
     t.true(GameLogRecorder.recordQuestionnaireSubmit.calledWithExactly(7, 0));
+    t.true(EventBus.trigger.calledWithExactly(EVENT.COGTEST_OPEN));
     t.true(GameController.game_unpause.calledOnce);
     t.false(controller.isDialogOpen());
 
@@ -101,15 +103,4 @@ ava.serial('airport change re-registers questionnaire interval', (t) => {
 
     t.true(GameController.destroyTimer.calledWithExactly(firstTimer));
     t.true(GameController.game_interval.calledTwice);
-});
-
-ava.serial('submit opens cogtest module in intro stage', (t) => {
-    controller = new QuestionnaireController($element);
-
-    intervalCallback.call(controller);
-    controller.onSubmit({ preventDefault: () => {} });
-
-    t.true(controller.isCogtestDialogOpen());
-    t.is(controller._cogtestCurrentStage, 'intro');
-    t.true(GameController.game_pause.calledTwice);
 });

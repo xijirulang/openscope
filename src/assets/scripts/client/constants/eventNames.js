@@ -34,6 +34,16 @@ export const EVENT = {
     CHAT_LOG_DURATION_CHANGE: 'chat-log-duration-change',
 
     /**
+     * Triggered when the fatigue questionnaire has been submitted
+     * and the cogtest module should be shown.
+     *
+     * @memberof EVENT
+     * @property COGTEST_OPEN
+     * @type {string}
+     */
+    COGTEST_OPEN: 'cogtest-open',
+
+    /**
      * A click was registered outside of a specific `StripViewModel`
      * and the active strip, if any, should have the `active`
      * css classname removed
